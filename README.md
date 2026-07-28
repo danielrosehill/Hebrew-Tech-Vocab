@@ -94,6 +94,19 @@ Nouns carry gender and plural, because a dictionary you can't build a sentence
 from is a word list. Examples are sentences you'd really say — *קפץ לי האוטומט*,
 not *המפסק האוטומטי נותק*.
 
+## Sister repo: the conventions
+
+A word is often only half of what you needed.
+[**Israel-Procurement-Morsels**](https://github.com/danielrosehill/Israel-Procurement-Morsels)
+holds the other half — the unwritten rules that the vocabulary unlocks.
+
+Knowing **גליל** means "coil" belongs here. Knowing that *searching `גליל` is the
+only way to reach the whole-reel listing, which is 17% cheaper than cut-to-length*
+belongs there. The first is a translation; the second is what actually costs you
+money if nobody tells you.
+
+Entries here link out to the morsel when there is one, and vice versa.
+
 ## Learning resources
 
 To facilitate spaced repetition, the dictionary is periodically used as the basis
