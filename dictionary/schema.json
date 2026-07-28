@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/danielrosehill/Hebrew-Tech-Vocab/dictionary/schema.json",
+  "title": "Hebrew Tech Vocab dictionary",
+  "type": "object",
+  "required": ["version", "updated", "entries"],
+  "properties": {
+    "version": { "type": "integer" },
+    "updated": { "type": "string", "format": "date" },
+    "entries": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/entry" }
+    }
+  },
+  "$defs": {
+    "register": {
+      "description": "Which Hebrew is this. 'trade' is what a supplier or tradesperson says across a counter; 'formal' is spec-sheet / Academy Hebrew, which is often NOT what you should say out loud; 'colloquial' is street register; 'borrowed' is an English word used as-is.",
+      "enum": ["trade", "colloquial", "formal", "borrowed"]
+    },
+    "entry": {
+      "type": "object",
+      "required": ["id", "en", "he", "translit", "domain", "register", "confidence", "human_verified"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Stable kebab-case key. Never reused, never renamed."
+        },
+        "en": { "type": "string", "description": "English term as Daniel would say it." },
+        "he": {
+          "type": "string",
+          "description": "The single form to actually use. Where the useful word and the correct word differ, this is the useful one."
+        },
+        "translit": { "type": "string", "description": "Plain Latin transliteration, no diacritics." },
+        "pos": { "enum": ["noun", "verb", "adjective", "phrase", "abbreviation"] },
+        "gender": { "enum": ["m", "f", "mf", "n/a"] },
+        "plural_he": { "type": ["string", "null"] },
+        "plural_translit": { "type": ["string", "null"] },
+        "domain": {
+          "type": "string",
+          "description": "Top-level area: electrical, plumbing, hardware, construction, it, telecoms, hvac, tools, commerce."
+        },
+        "subdomain": { "type": ["string", "null"] },
+        "type": {
+          "enum": ["translation", "transliteration", "hybrid", "borrowed"],
+          "description": "Is the Hebrew a genuine coinage, an English word in Hebrew letters, or a mix (e.g. כבל USB)."
+        },
+        "register": { "$ref": "#/$defs/register" },
+        "alternatives": {
+          "type": "array",
+          "description": "Other forms you will hear or read. The Academy term usually lives here, not in `he`.",
+          "items": {
+            "type": "object",
+            "required": ["he", "register", "note"],
+            "additionalProperties": false,
+            "properties": {
+              "he": { "type": "string" },
+              "translit": { "type": ["string", "null"] },
+              "register": { "$ref": "#/$defs/register" },
+              "note": { "type": "string", "description": "When this form is used instead, and by whom." }
+            }
+          }
+        },
+        "gloss": {
+          "type": "string",
+          "description": "What the thing actually is, in English, for when the translation alone does not settle it."
+        },
+        "example_he": { "type": ["string", "null"], "description": "A sentence you would really say in a shop." },
+        "example_en": { "type": ["string", "null"] },
+        "notes": {
+          "type": ["string", "null"],
+          "description": "Usage traps: false friends, terms falling out of favour, what the counter staff will assume you mean."
+        },
+        "seen_at": {
+          "type": "array",
+          "description": "Provenance. Repo-relative paths to source screenshots, and/or URLs.",
+          "items": { "type": "string" }
+        },
+        "confidence": {
+          "enum": ["high", "medium", "low"],
+          "description": "How sure the machine pass is. Low-confidence entries are the queue for human review."
+        },
+        "human_verified": { "type": "boolean" },
+        "human_notes": { "type": ["string", "null"], "description": "What a native speaker said when they reviewed it." },
+        "verified_by": { "type": ["string", "null"] },
+        "source": { "type": "string", "description": "claude | daniel | native-speaker" },
+        "added": { "type": "string", "format": "date" }
+      }
+    }
+  }
+}

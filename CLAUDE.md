@@ -1,71 +1,75 @@
 # Hebrew Tech Vocab
 
-## Project Overview
+A bilingual Hebrew-English dictionary of technical and trade vocabulary — not
+only software. Electrical, plumbing, hardware, tools, and the counter Hebrew for
+buying them. See `README.md` for why.
 
-A bilingual Hebrew-English tech vocabulary dictionary. Words go through two flows:
+## The one thing to get right
 
-1. **Flow 1 (Machine)**: Daniel defines words → Claude retrieves translations → populates `dictionary/dictionary.json` with `human_verified: false`
-2. **Flow 2 (Human)**: A native speaker reviews → confirms or corrects → sets `human_verified: true`, adds notes
+The project exists because Google Translate answers a different question than the
+one being asked. It returns *a* correct Hebrew word; what is needed is *the* word
+a supplier will recognise across a counter.
 
-### Key Files
+**So `he` holds the word to actually use, not the word that is officially
+correct.** Where those differ, the official term goes in `alternatives` with a
+note on who uses it. The canonical case: a circuit breaker is **אוטומט** in `he`,
+with מא"ז / מפסק אוטומטי זעיר in `alternatives` as the formal form nobody says.
 
-- `dictionary/dictionary.json` — Source of truth for all vocabulary entries
-- `process/to-add/` — Words queued for translation (organized by theme)
-- `sources/` — Reference material and screenshots
+An entry that records only the meaning has failed, even when the translation is
+right.
 
-### Dictionary Entry Schema
+## Adding vocabulary
 
-Each entry in `dictionary.json` should follow this structure:
+Use the **`vocab-capture` skill** (`.claude/skills/vocab-capture/SKILL.md`). It
+covers both directions — Daniel explaining a term he has learned in the field, and
+Daniel asking for research on one he hasn't — and it handles saving and
+documenting the source image. Read it before writing any entry.
 
-```json
-{
-  "english": "rate limiting",
-  "hebrew": "הגבלת קצב",
-  "transliteration": "hagbalat ketzev",
-  "category": "networking",
-  "type": "translation|transliteration|hybrid",
-  "example_en": "The server is rate limiting me",
-  "example_he": "השרת מגביל את הקצב שלי",
-  "human_verified": false,
-  "human_notes": null,
-  "source": "claude"
-}
-```
+Field semantics live in `dictionary/schema.json`, which is the authority on what
+each field means. Do not restate the schema here.
 
-### Translation Guidelines
+Do not add entries by hand-editing `dictionary.json` without going through the
+skill's checks; the register research is the work, and skipping it produces
+exactly the useless-but-correct output the repo was built to replace.
 
-- Prefer the word people actually use in Israeli tech, not the "official" Academy Hebrew
-- Flag when both a transliteration (e.g., בלוטוס) and a Hebrew coinage exist
-- Note if a term is falling out of favor or is generational
-- Use nikud (vowel marks) only when disambiguation is needed
+## Layout
 
-## Slash Commands
+| Path | |
+|---|---|
+| `dictionary/dictionary.json` | Source of truth |
+| `dictionary/schema.json` | Field semantics |
+| `sources/<slug>/` | Screenshots; sibling `sources/<slug>.md` documents each |
+| `process/to-add/` | Words wanted where there is no source to capture |
+| `scripts/` | `validate.py`, `stats.py`, `export_anki.py` — stdlib only, no deps |
+| `anki/` | Generated deck; regenerated wholesale, never edited |
+| `learning/` | TTS episode scripts |
 
-### /add-words
-Process words from `process/to-add/` files. For each word:
-1. Read the English term and example sentence
-2. Provide Hebrew translation, transliteration, category, and type classification
-3. Generate a Hebrew example sentence
-4. Append the entry to `dictionary/dictionary.json` with `human_verified: false`
-5. Remove the processed word from the to-add file
+## Conventions
 
-### /review
-Display the current dictionary entries that have `human_verified: false` in a readable table format (English | Hebrew | Transliteration | Category) so Daniel can share with a native speaker for review.
+- Run `python3 scripts/validate.py` after touching the dictionary. It catches
+  duplicate ids, bad enum values, and `seen_at` paths pointing at images that
+  aren't in the repo.
+- Append to `entries`; never reorder or renumber. The file is reviewed by a human
+  in a diff, so keep changes local.
+- `id` is kebab-case and permanent once written.
+- Bump `updated` at the top of the dictionary on every change.
+- Nikud only where it disambiguates. Transliteration is plain Latin, no diacritics.
+- Confidence is set honestly. A wrong `high` costs far more than an admitted `low`,
+  because `low` is the queue the native-speaker pass works from.
 
-### /verify
-Mark specific dictionary entries as human-verified. Accepts the English term and optional human notes. Sets `human_verified: true` and appends any notes.
+## Researching Israeli vendor sites
 
-### /stats
-Show dictionary statistics: total entries, verified vs unverified, breakdown by category and type (translation/transliteration/hybrid).
+Many geo-fence to Israeli IPs, so `WebFetch` returns a wall or nothing. Use
+`mcp__gateway__fetch-and-convert__fetch_markdown`, which egresses from the home
+Israeli residential connection, and `mcp__gateway__playwright__browser_navigate`
+for JS-rendered pages.
 
-### /export-anki
-Export the dictionary to an Anki-compatible TSV file with columns: front (English + example), back (Hebrew + transliteration + example).
+## Slash commands
 
-### /tts-script
-Generate a TTS learning script from the dictionary. Alternates English and Hebrew with pauses, suitable for spaced-repetition audio episodes. Output as a structured text file ready for TTS processing.
+`/verify` `/find` `/stats` `/export-anki` `/tts-script` — defined in
+`.claude/commands/`, which is the authority on their behaviour.
 
-### /find
-Search the dictionary for a specific English or Hebrew term and display its full entry.
+## Related repos
 
-### /add-source
-Add a new source document or screenshot to `sources/` with a corresponding markdown description file.
+`Hebrew-TTS-Providers` (which TTS handles Hebrew), `English-Hebrew-Translation`
+(translation APIs and MCP servers), `Hebrew-Language-Projects-Index`.
